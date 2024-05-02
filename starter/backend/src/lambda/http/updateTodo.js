@@ -16,7 +16,7 @@ export const handler = middy()
   .use(httpErrorHandler())
   .use(cors({ credentials: true }))
   .handler(async (event) => {
-    logger.info('Processing event: ', event)
+    logger.info('Processing event', { ...event })
     const startTime = timeInMs()
     let endTime
     let requestWasSuccessful
@@ -26,7 +26,7 @@ export const handler = middy()
     logger.info(`Updating todo: ${todoId} of user: ${userId}`)
 
     const updatingTodo = JSON.parse(event.body)
-    logger.info('Updating todo object: ', updatingTodo)
+    logger.info('Updating todo object', { ...updatingTodo })
 
     try {
       await updateTodo(todoId, userId, updatingTodo)

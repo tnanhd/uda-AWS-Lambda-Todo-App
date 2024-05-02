@@ -12,7 +12,7 @@ export const handler = middy()
   .use(httpErrorHandler())
   .use(cors({ credentials: true }))
   .handler(async (event) => {
-    logger.info('Processing event: ', event)
+    logger.info('Processing event', { ...event })
 
     const todoId = event.pathParameters.todoId
     const userId = getUserId(event)

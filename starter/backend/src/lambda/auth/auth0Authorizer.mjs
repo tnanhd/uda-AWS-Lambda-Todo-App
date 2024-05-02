@@ -28,7 +28,7 @@ RHvcTQf3Sv2Xtl//cHGBYEapJfs0mnc5wqwY8Z82Cwob
 export async function handler(event) {
   try {
     const jwtToken = await verifyToken(event.authorizationToken)
-    logger.info(`User was authozired with principalId: ${jwtToken.sub}`)
+    logger.info('User was authozired', { userId: jwtToken.sub })
 
     return {
       principalId: jwtToken.sub,
