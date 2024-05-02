@@ -1,19 +1,28 @@
-import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
-import { parseUserId } from '../../auth/utils.mjs'
-
-const dynamoDbClient = DynamoDBDocument.from(new DynamoDB())
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
+import httpErrorHandler from '@middy/http-error-handler'
+import dynamoDbClient from '../../utils/dbClient.mjs'
+import { getUserId } from '../utils.mjs'
 
 const tableName = process.env.TODOS_TABLE
 
-export async function handler(event) {
-  console.log('Processing event: ', event)
+export const handler = middy()
+  .use(httpErrorHandler())
+  .use(cors({ credentials: true }))
+  .handler(async (event) => {
+    console.log('Processing event: ', event)
 
-  const todoId = event.pathParameters.todoId
-  const authorization = event.headers.Authorization
-  const split = authorization.split(' ')
-  const userId = parseUserId(split[1])
+    const todoId = event.pathParameters.todoId
+    const userId = getUserId(event)
 
+    await deleteTodo(todoId, userId)
+
+    return {
+      statusCode: 204
+    }
+  })
+
+async function deleteTodo(todoId, userId) {
   await dynamoDbClient.delete({
     TableName: tableName,
     Key: {
@@ -21,11 +30,4 @@ export async function handler(event) {
       userId
     }
   })
-
-  return {
-    statusCode: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
-  }
 }

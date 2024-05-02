@@ -1,35 +1,33 @@
-import { DynamoDB } from '@aws-sdk/client-dynamodb'
-import { DynamoDBDocument } from '@aws-sdk/lib-dynamodb'
-import { parseUserId } from '../../auth/utils.mjs'
-import { createLogger } from '../../utils/logger.mjs'
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
+import httpErrorHandler from '@middy/http-error-handler'
+import { getUserId } from '../utils.mjs'
+import dynamoDbClient from '../../utils/dbClient.mjs'
 
 const tableName = process.env.TODOS_TABLE
 
-const dynamoDbDocument = DynamoDBDocument.from(new DynamoDB())
+export const handler = middy()
+  .use(httpErrorHandler())
+  .use(cors({ credentials: true }))
+  .handler(async (event) => {
+    console.log('Processing event: ', event)
 
-const logger = createLogger('getTodos')
+    const userId = getUserId(event)
+    const items = await getTodosByUserId(userId)
 
-export async function handler(event) {
-  console.log('Processing event: ', event)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ items })
+    }
+  })
 
-  const authorization = event.headers.Authorization
-  const split = authorization.split(' ')
-  const userId = parseUserId(split[1])
-  logger.info(`userId: ${userId}`)
-
-  const todos = await dynamoDbDocument.query({
+async function getTodosByUserId(userId) {
+  const todos = await dynamoDbClient.query({
     TableName: tableName,
     KeyConditionExpression: 'userId = :userId',
     ExpressionAttributeValues: {
       ':userId': userId
     }
   })
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    },
-    body: JSON.stringify({ items: todos.Items })
-  }
+  return todos.Items
 }
