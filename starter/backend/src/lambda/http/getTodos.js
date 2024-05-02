@@ -1,13 +1,13 @@
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import httpErrorHandler from '@middy/http-error-handler'
-import { getUserId, timeInMs } from '../utils.mjs'
-import dynamoDbClient from '../../utils/dbClient.mjs'
+import { getUserId } from '../auth/utils.mjs'
+import { timeInMs } from '../../utils/time.mjs'
 import { PutMetricDataCommand } from '@aws-sdk/client-cloudwatch'
 import cloudwatch from '../../utils/cloudwatchClient.mjs'
 import { createLogger } from '../../utils/logger.mjs'
+import { getTodosByUserId } from '../../businessLogic/todos.mjs'
 
-const tableName = process.env.TODOS_TABLE
 const serviceName = process.env.SERVICE_NAME
 const functionName = 'getTodos'
 const logger = createLogger('getTodos')
@@ -16,7 +16,8 @@ export const handler = middy()
   .use(httpErrorHandler())
   .use(cors({ credentials: true }))
   .handler(async (event) => {
-    logger.info('Processing event', { ...event })
+    logger.info('Processing event:')
+    logger.info(event)
     const startTime = timeInMs()
     let endTime
     let requestWasSuccessful
@@ -77,14 +78,3 @@ export const handler = middy()
       body: JSON.stringify({ items })
     }
   })
-
-async function getTodosByUserId(userId) {
-  const todos = await dynamoDbClient.query({
-    TableName: tableName,
-    KeyConditionExpression: 'userId = :userId',
-    ExpressionAttributeValues: {
-      ':userId': userId
-    }
-  })
-  return todos.Items
-}
