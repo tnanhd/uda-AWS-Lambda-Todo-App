@@ -7,3 +7,7 @@ export function getUserId(event) {
 
   return parseUserId(jwtToken)
 }
+
+export function timeInMs() {
+  return new Date().getTime()
+}
