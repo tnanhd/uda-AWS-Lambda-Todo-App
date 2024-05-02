@@ -10,6 +10,10 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs16.x
+  tracing:
+    lambda: true
+    apiGateway: true
+
   region: 'us-east-1'
   stage: ${opt:stage, 'dev'}
   environment:
@@ -18,6 +22,16 @@ provider:
     SIGNED_URL_EXPIRATION: 300
     IMAGES_S3_BUCKET: udamod4-${aws:accountId}-${self:provider.stage}
     SERVICE_NAME: 'todo-app-lambda'
+
+  iam:
+    role:
+      statements:
+        - Effect: 'Allow'
+          Action:
+            - 'xray:PutTraceSegments'
+            - 'xray:PutTelemetryRecords'
+          Resource:
+            - '*'
 
 functions:
   Auth:
