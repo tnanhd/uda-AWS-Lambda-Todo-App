@@ -34,12 +34,12 @@ export function Todos() {
         {todos.map((todo, pos) => {
           return (
             <Grid.Row key={todo.todoId}>
-              {/* <Grid.Column width={1} verticalAlign="middle">
-                  <Checkbox
-                    onChange={() => onTodoCheck(pos)}
-                    checked={todo.done}
-                  />
-                </Grid.Column> */}
+              <Grid.Column width={1} verticalAlign="middle">
+                <Checkbox
+                  onChange={() => onTodoCheck(pos)}
+                  checked={todo.done}
+                />
+              </Grid.Column>
               <Grid.Column width={10} verticalAlign="middle">
                 {todo.name}
               </Grid.Column>
@@ -63,11 +63,11 @@ export function Todos() {
                 >
                   <Icon name="delete" />
                 </Button>
-                {/* </Grid.Column>
-                {todo.attachmentUrl && (
-                  <Image src={todo.attachmentUrl} size="small" wrapped />
-                )}
-                <Grid.Column width={16}> */}
+              </Grid.Column>
+              {todo.attachmentUrl && (
+                <Image src={todo.attachmentUrl} size="small" wrapped />
+              )}
+              <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>
             </Grid.Row>

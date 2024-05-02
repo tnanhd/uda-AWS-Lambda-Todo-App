@@ -24,6 +24,8 @@ export async function handler(event) {
   const newTodo = {
     todoId,
     userId,
+    done: false,
+    attachmentUrl: '',
     ...parsedBody
   }
 
