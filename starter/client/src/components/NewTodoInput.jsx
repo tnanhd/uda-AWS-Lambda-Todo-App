@@ -4,6 +4,9 @@ import React, { useState } from 'react'
 import { Divider, Grid, Input } from 'semantic-ui-react'
 import { createTodo } from '../api/todos-api'
 
+const domain = process.env.REACT_APP_AUTH0_DOMAIN
+const audience = `https://${domain}/api/v2/`
+
 export function NewTodoInput({ onNewTodo }) {
   const [newTodoName, setNewTodoName] = useState('')
 
@@ -12,7 +15,7 @@ export function NewTodoInput({ onNewTodo }) {
   const onTodoCreate = async (event) => {
     try {
       const accessToken = await getAccessTokenSilently({
-        audience: `https://test-endpoint.auth0.com/api/v2/`,
+        audience,
         scope: 'write:todos'
       })
       const dueDate = calculateDueDate()
@@ -21,6 +24,7 @@ export function NewTodoInput({ onNewTodo }) {
         dueDate
       })
       onNewTodo(createdTodo)
+      setNewTodoName('')
     } catch (e) {
       console.log('Failed to created a new TODO', e)
       alert('Todo creation failed')
@@ -41,6 +45,7 @@ export function NewTodoInput({ onNewTodo }) {
           fluid
           actionPosition="left"
           placeholder="To change the world..."
+          value={newTodoName}
           onChange={(event) => setNewTodoName(event.target.value)}
         />
       </Grid.Column>
